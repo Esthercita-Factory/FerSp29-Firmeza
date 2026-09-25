@@ -1,22 +1,22 @@
-# Firmeza - ASP.NET Core Clean Architecture
+# Firmeza - ASP.NET Core Clean Architecture & PostgreSQL
 
-Solución backend desarrollada con **.NET** bajo los principios de **Clean Architecture (Arquitectura Limpia)**, garantizando desacoplamiento, mantenibilidad y escalabilidad desde su concepción inicial[cite: 1].
+Solución backend desarrollada con **.NET 10** bajo los principios de **Clean Architecture (Arquitectura Limpia)** y enfoque **Database-First** con **PostgreSQL** y **Entity Framework Core**.
 
 ---
 
 ## 🏛️ Arquitectura de la Solución
 
-El proyecto organiza sus responsabilidades en capas bien definidas, asegurando que las reglas de negocio permanezcan aisladas de las dependencias externas y frameworks[cite: 1]:
+El proyecto organiza sus responsabilidades en capas bien definidas, asegurando que las reglas de negocio permanezcan aisladas de las dependencias externas y frameworks:
 
 ```text
 Firmeza/
 ├── src/
-│   ├── Firmeza.Domain/           # Capa de Dominio: Entidades nucleares, enums e interfaces base
+│   ├── Firmeza.Domain/           # Capa de Dominio: Entidades nucleares (UUIDs), enums e interfaces base
 │   ├── Firmeza.Application/      # Capa de Aplicación: Casos de uso, DTOs y lógica de negocio
-│   ├── Firmeza.Infrastructure/   # Capa de Infraestructura: Persistencia de datos y servicios externos
-│   └── Firmeza.API/              # Capa de Presentación: Endpoints HTTP y configuración de OpenAPI
+│   ├── Firmeza.Infrastructure/   # Capa de Infraestructura: Persistencia de datos (EF Core, PostgreSQL)
+│   └── Firmeza.API/              # Capa de Presentación: Endpoints HTTP, OpenAPI y Scalar UI
 └── test/
-    └── Firmeza.UnitTests/        # Pruebas automatizadas del sistema con xUnit
+    └── Firmeza.UnitTests/        # Pruebas unitarias y de integración con xUnit
 ```
 
 ### Flujo de Dependencias
@@ -28,53 +28,105 @@ Firmeza/
        └──────────────────> [ Firmeza.Domain ] <─────────────────┘
 ```
 
-* **Domain:** No depende de ningún otro proyecto.
-* **Application:** Depende únicamente de `Domain`[cite: 1].
-* **Infrastructure:** Implementa contratos definidos en `Application` e interactúa con `Domain`[cite: 1].
-* **API:** Punto de entrada que orquesta la Inyección de Dependencias (DI) conectando `Application` e `Infrastructure`[cite: 1].
-* **UnitTests:** Evalúa la lógica de `Application` y `Domain` en aislamiento total[cite: 1].
+* **Domain:** No depende de ningún otro proyecto. Contiene las entidades (`Cliente`, `Producto`, `Venta`, `Detalle`).
+* **Application:** Depende únicamente de `Domain`.
+* **Infrastructure:** Implementa contratos definidos en `Application`, interactúa con `Domain` y gestiona la persistencia con `ApplicationDbContext`.
+* **API:** Punto de entrada que orquesta la Inyección de Dependencias (DI) conectando `Application` e `Infrastructure`.
+* **UnitTests:** Evalúa la arquitectura, el modelo de datos relacional y pruebas de integración.
 
 ---
 
-## ⚙️ Tecnologías Utilizadas
+## 🗄️ Base de Datos Relacional (PostgreSQL)
 
-* **Lenguaje:** C#
-* **Plataforma:** .NET (ASP.NET Core Minimal APIs / OpenAPI)
-* **Framework de Pruebas:** xUnit[cite: 1]
-* **IDE Recomendado:** JetBrains Rider / Visual Studio Code
+El entorno de base de datos se ejecuta mediante Docker Compose.
 
----
+### Iniciar el contenedor de PostgreSQL
+```bash
+docker compose up -d
+```
 
-## 🚀 Requisitos Previos
+### Configuración de Conexión
+* **Host:** `localhost`
+* **Puerto:** `5433` (mapeado al 5432 del contenedor)
+* **Base de datos:** `firmeza_db`
+* **Usuario:** `postgres`
+* **Contraseña:** `postgres`
+* **Cadena de conexión:**
+  ```
+  Host=localhost;Port=5433;Database=firmeza_db;Username=postgres;Password=postgres
+  ```
 
-* [.NET SDK](https://dotnet.microsoft.com/download) instalado en su versión 8.0 o superior.
-* Git instalado y configurado.
+### Tablas del Esquema (Identificadores UUID / GUID)
+1. **`clientes`**: Registro de clientes (`id UUID`, `nombre`, `correo`, `telefono`, `direccion`, `fecha_registro`).
+2. **`productos`**: Catálogo de productos (`id UUID`, `codigo`, `nombre`, `descripcion`, `precio`, `stock`, `activo`, `fecha_creacion`).
+3. **`ventas`**: Registro de ventas/facturas (`id UUID`, `cliente_id UUID`, `fecha`, `total`, `estado`).
+4. **`detalles`**: Líneas de venta con relación a venta y producto (`id UUID`, `venta_id UUID`, `producto_id UUID`, `cantidad`, `precio_unitario`, `subtotal`).
 
----
-
-## 🛠️ Instalación y Configuración
-
-1. **Clonar el repositorio:**
-   ```bash
-   git clone [https://github.com/Esthercita-Factory/FerSp29-Firmeza.git](https://github.com/Esthercita-Factory/FerSp29-Firmeza.git)
-   cd FerSp29-Firmeza
-   ```
-
-2. **Restaurar dependencias:**
-   ```bash
-   dotnet restore
-   ```
-
-3. **Compilar la solución:**
-   ```bash
-   dotnet build
-   ```
+El script de inicialización con constraints, índices y seed data se encuentra en `scripts/init.sql`.
 
 ---
 
-## 🧪 Ejecución de Pruebas Unitarias
+## ⚙️ Entity Framework Core (Database-First)
 
-Para correr la suite de pruebas automatizadas y validar la integridad del sistema:
+El modelado y persistencia se generó mediante ingeniería inversa (`Scaffold-DbContext` / `dotnet ef dbcontext scaffold`):
+
+```bash
+dotnet ef dbcontext scaffold "Host=localhost;Port=5433;Database=firmeza_db;Username=postgres;Password=postgres" \
+  Npgsql.EntityFrameworkCore.PostgreSQL \
+  --project src/Firmeza.Infrastructure \
+  --startup-project src/Firmeza.API \
+  --context ApplicationDbContext \
+  --context-dir Persistence \
+  --output-dir ../Firmeza.Domain/Entities \
+  --namespace Firmeza.Domain.Entities \
+  --context-namespace Firmeza.Infrastructure.Persistence \
+  --no-onconfiguring \
+  --force
+```
+
+---
+
+## 🔄 Migraciones de Entity Framework Core
+
+El proyecto cuenta con migraciones versionadas en [`src/Firmeza.Infrastructure/Persistence/Migrations`](src/Firmeza.Infrastructure/Persistence/Migrations).
+
+### Crear una nueva migración
+```bash
+dotnet ef migrations add <NombreMigracion> --project src/Firmeza.Infrastructure --startup-project src/Firmeza.API --output-dir Persistence/Migrations
+```
+
+### Aplicar migraciones pendientes a la base de datos
+```bash
+dotnet ef database update --project src/Firmeza.Infrastructure --startup-project src/Firmeza.API
+```
+
+---
+
+## 🖥️ Conexión desde pgAdmin 4
+
+Para administrar visualmente la base de datos desde pgAdmin 4:
+
+1. Abre **pgAdmin 4**.
+2. Clic derecho en **Servers** -> **Register** -> **Server...**.
+3. En la pestaña **General**:
+   * **Name:** `Firmeza PostgreSQL`
+4. En la pestaña **Connection**:
+   * **Host name/address:** `localhost` (o `127.0.0.1`)
+   * **Port:** `5433` *(Importante: no usar 5432)*
+   * **Maintenance database:** `firmeza_db`
+   * **Username:** `postgres`
+   * **Password:** `postgres`
+   * *(Opcional)* Marca la casilla **Save password**.
+5. Clic en **Save**.
+
+En el árbol lateral podrás explorar las tablas en:
+`Servers` > `Firmeza PostgreSQL` > `Databases` > `firmeza_db` > `Schemas` > `public` > `Tables`.
+
+---
+
+## 🧪 Ejecución de Pruebas Unitarias e Integración
+
+Para correr la suite completa de pruebas:
 
 ```bash
 dotnet test
@@ -90,13 +142,4 @@ Para iniciar el servidor de desarrollo:
 dotnet run --project src/Firmeza.API/Firmeza.API.csproj
 ```
 
-Una vez en ejecución, accede a la documentación interactiva de la API navegando a la URL indicada en la terminal (OpenAPI / Swagger en entorno local de desarrollo).
-
----
-
-## 🧩 Inyección de Dependencias (DI)
-
-La solución utiliza métodos de extensión modulares para registrar las dependencias de cada capa sin acoplar la configuración en `Program.cs`[cite: 1]:
-
-* `services.AddApplication()` registra casos de uso y validaciones[cite: 1].
-* `services.AddInfrastructure()` registra la persistencia de datos y repositorios[cite: 1].
+Una vez en ejecución, accede a la documentación interactiva navegando a [http://localhost:5117/](http://localhost:5117/) (redirecciona a Scalar API Reference).

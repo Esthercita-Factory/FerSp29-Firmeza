@@ -3,8 +3,6 @@
     <Project Path="src/Firmeza.API/Firmeza.API.csproj" />
     <Project Path="src/Firmeza.Application/Firmeza.Application.csproj" />
     <Project Path="src/Firmeza.Infrastructure/Firmeza.Infrastructure.csproj" />
-  </Folder>
-  <Folder Name="/src/Firmeza.Domain/">
     <Project Path="src/Firmeza.Domain/FirmezaDomain.csproj" />
   </Folder>
   <Folder Name="/test/">
