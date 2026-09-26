@@ -1,6 +1,19 @@
 @Firmeza.API_HostAddress = http://localhost:5117
 
-GET {{Firmeza.API_HostAddress}}/weatherforecast/
+### Obtener Productos
+GET {{Firmeza.API_HostAddress}}/productos
+Accept: application/json
+
+### Obtener Clientes
+GET {{Firmeza.API_HostAddress}}/clientes
+Accept: application/json
+
+### Obtener Ventas
+GET {{Firmeza.API_HostAddress}}/ventas
+Accept: application/json
+
+### Obtener Detalles
+GET {{Firmeza.API_HostAddress}}/detalles
 Accept: application/json
 
 ###

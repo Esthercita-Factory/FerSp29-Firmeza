@@ -56,11 +56,12 @@ docker compose up -d
   Host=localhost;Port=5433;Database=firmeza_db;Username=postgres;Password=postgres
   ```
 
-### Tablas del Esquema (Identificadores UUID / GUID)
-1. **`clientes`**: Registro de clientes (`id UUID`, `nombre`, `correo`, `telefono`, `direccion`, `fecha_registro`).
-2. **`productos`**: Catálogo de productos (`id UUID`, `codigo`, `nombre`, `descripcion`, `precio`, `stock`, `activo`, `fecha_creacion`).
-3. **`ventas`**: Registro de ventas/facturas (`id UUID`, `cliente_id UUID`, `fecha`, `total`, `estado`).
-4. **`detalles`**: Líneas de venta con relación a venta y producto (`id UUID`, `venta_id UUID`, `producto_id UUID`, `cantidad`, `precio_unitario`, `subtotal`).
+### Tablas del Esquema (Identificadores UUID y tipos text)
+1. **`clientes`**: Registro de clientes (`id UUID [PK]`, `nombre text`, `correo text`, `telefono text`, `direccion text`, `fecha_registro`).
+2. **`productos`**: Catálogo de productos (`id UUID [PK]`, `codigo text`, `nombre text`, `descripcion text`, `precio`, `stock`, `activo`, `fecha_creacion`).
+3. **`ventas`**: Registro de ventas/facturas (`id UUID [PK]`, `cliente_id UUID`, `fecha`, `total`, `estado text`).
+4. **`detalles`**: Líneas de venta con relación a venta y producto (`id UUID [PK]`, `venta_id UUID`, `producto_id UUID`, `cantidad`, `precio_unitario`, `subtotal`).
+
 
 El script de inicialización con constraints, índices y seed data se encuentra en `scripts/init.sql`.
 

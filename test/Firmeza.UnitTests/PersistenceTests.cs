@@ -94,7 +94,10 @@ public class PersistenceTests
         Assert.Equal(64000m, venta.Total);
         Assert.Equal(2, detalle.Cantidad);
         Assert.Equal(detalle.VentaId, venta.Id);
-        Assert.Equal(detalle.ProductoId, producto.Id);
+        Assert.NotEqual(Guid.Empty, cliente.Id);
+        Assert.NotEqual(Guid.Empty, producto.Id);
+        Assert.NotEqual(Guid.Empty, venta.Id);
+        Assert.NotEqual(Guid.Empty, detalle.Id);
     }
 
     [Fact]

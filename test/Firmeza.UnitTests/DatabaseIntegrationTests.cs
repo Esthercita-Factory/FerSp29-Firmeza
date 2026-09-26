@@ -25,7 +25,7 @@ public class DatabaseIntegrationTests
         using var context = CreateContext();
         var uniqueEmail = $"test_{Guid.NewGuid():N}@firmeza.com";
 
-        // 1. Create
+        // 1. Create (con autogeneración de NanoID en PostgreSQL o asignado)
         var cliente = new Cliente
         {
             Nombre = "Cliente Test Automatizado",
