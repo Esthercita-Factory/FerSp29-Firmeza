@@ -1,11 +1,13 @@
 using System;
 using System.Collections.Generic;
 using Firmeza.Domain.Entities;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore; // <-- 1. Agregar este using
 using Microsoft.EntityFrameworkCore;
 
 namespace Firmeza.Infrastructure.Persistence;
 
-public partial class ApplicationDbContext : DbContext
+// 2. Cambiar DbContext por IdentityDbContext
+public partial class ApplicationDbContext : IdentityDbContext
 {
     public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
         : base(options)
@@ -22,6 +24,8 @@ public partial class ApplicationDbContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        base.OnModelCreating(modelBuilder); // <-- 3. FUNDAMENTAL: Configura las tablas AspNetUsers, Roles, etc.
+
         modelBuilder.Entity<Cliente>(entity =>
         {
             entity.HasKey(e => e.Id).HasName("clientes_pkey");

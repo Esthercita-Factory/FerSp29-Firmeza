@@ -143,4 +143,18 @@ Para iniciar el servidor de desarrollo:
 dotnet run --project src/Firmeza.API/Firmeza.API.csproj
 ```
 
-Una vez en ejecución, accede a la documentación interactiva navegando a [http://localhost:5117/](http://localhost:5117/) (redirecciona a Scalar API Reference).
+Una vez en ejecución:
+* **Swagger UI:** Accede a [http://localhost:5117/swagger](http://localhost:5117/swagger) (o directamente en la raíz [http://localhost:5117/](http://localhost:5117/), que redirecciona a Swagger).
+* **Scalar API Reference:** Accede a [http://localhost:5117/scalar/v1](http://localhost:5117/scalar/v1).
+
+### 🔐 Autenticación y Autorización (Identity + JWT Bearer)
+1. **Registro:** `POST /api/Auth/register` enviando `{ "email": "admin@firmeza.com", "password": "TuPassword123", "rol": "Admin" }`.
+2. **Login:** `POST /api/Auth/login` para recibir tu token JWT con su respectivo rol (`Admin` o `Cliente`).
+3. **Autorizar en Swagger:**
+   * Clic en el botón verde **Authorize** (candado) en Swagger.
+   * Ingresa:
+     ```text
+     Bearer <tu_token_jwt>
+     ```
+   * Clic en **Authorize** y luego **Close**.
+4. **Operaciones CRUD:** Ejecuta las operaciones sobre `/api/Productos` y `/api/Clientes` con la autenticación activa.
