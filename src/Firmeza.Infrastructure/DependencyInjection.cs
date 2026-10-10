@@ -1,4 +1,6 @@
+using Firmeza.Application.Interfaces;
 using Firmeza.Infrastructure.Persistence;
+using Firmeza.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -17,6 +19,14 @@ public static class DependencyInjection
             
             options.UseNpgsql(connectionString);
         });
+
+        services.AddScoped<IProveedorService, ProveedorService>();
+        services.AddScoped<IEmpleadoService, EmpleadoService>();
+        services.AddScoped<IAdminEmpleadoService, AdminEmpleadoService>();
+        services.AddScoped<IVehiculoService, VehiculoService>();
+        services.AddScoped<IInventarioService, InventarioService>();
+        services.AddScoped<IMovimientosPedidosService, MovimientosPedidosService>();
+        services.AddScoped<IReportesService, ReportesService>();
 
         return services;
     }

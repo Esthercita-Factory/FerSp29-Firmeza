@@ -29,10 +29,10 @@ Firmeza/
 ```
 
 * **Domain:** No depende de ningún otro proyecto. Contiene las entidades (`Cliente`, `Producto`, `Venta`, `Detalle`).
-* **Application:** Depende únicamente de `Domain`.
-* **Infrastructure:** Implementa contratos definidos en `Application`, interactúa con `Domain` y gestiona la persistencia con `ApplicationDbContext`.
-* **API:** Punto de entrada que orquesta la Inyección de Dependencias (DI) conectando `Application` e `Infrastructure`.
-* **UnitTests:** Evalúa la arquitectura, el modelo de datos relacional y pruebas de integración.
+  * **Application:** Depende únicamente de `Domain`.
+  * **Infrastructure:** Implementa contratos definidos en `Application`, interactúa con `Domain` y gestiona la persistencia con `ApplicationDbContext`.
+  * **API:** Punto de entrada que orquesta la Inyección de Dependencias (DI) conectando `Application` e `Infrastructure`.
+  * **UnitTests:** Evalúa la arquitectura, el modelo de datos relacional y pruebas de integración.
 
 ---
 
@@ -47,20 +47,20 @@ docker compose up -d
 
 ### Configuración de Conexión
 * **Host:** `localhost`
-* **Puerto:** `5433` (mapeado al 5432 del contenedor)
-* **Base de datos:** `firmeza_db`
-* **Usuario:** `postgres`
-* **Contraseña:** `postgres`
-* **Cadena de conexión:**
-  ```
-  Host=localhost;Port=5433;Database=firmeza_db;Username=postgres;Password=postgres
-  ```
+  * **Puerto:** `5433` (mapeado al 5432 del contenedor)
+  * **Base de datos:** `firmeza_db`
+  * **Usuario:** `postgres`
+  * **Contraseña:** `postgres`
+  * **Cadena de conexión:**
+    ```
+    Host=localhost;Port=5433;Database=firmeza_db;Username=postgres;Password=postgres
+    ```
 
 ### Tablas del Esquema (Identificadores UUID y tipos text)
 1. **`clientes`**: Registro de clientes (`id UUID [PK]`, `nombre text`, `correo text`, `telefono text`, `direccion text`, `fecha_registro`).
-2. **`productos`**: Catálogo de productos (`id UUID [PK]`, `codigo text`, `nombre text`, `descripcion text`, `precio`, `stock`, `activo`, `fecha_creacion`).
-3. **`ventas`**: Registro de ventas/facturas (`id UUID [PK]`, `cliente_id UUID`, `fecha`, `total`, `estado text`).
-4. **`detalles`**: Líneas de venta con relación a venta y producto (`id UUID [PK]`, `venta_id UUID`, `producto_id UUID`, `cantidad`, `precio_unitario`, `subtotal`).
+   2. **`productos`**: Catálogo de productos (`id UUID [PK]`, `codigo text`, `nombre text`, `descripcion text`, `precio`, `stock`, `activo`, `fecha_creacion`).
+   3. **`ventas`**: Registro de ventas/facturas (`id UUID [PK]`, `cliente_id UUID`, `fecha`, `total`, `estado text`).
+   4. **`detalles`**: Líneas de venta con relación a venta y producto (`id UUID [PK]`, `venta_id UUID`, `producto_id UUID`, `cantidad`, `precio_unitario`, `subtotal`).
 
 
 El script de inicialización con constraints, índices y seed data se encuentra en `scripts/init.sql`.
@@ -108,17 +108,17 @@ dotnet ef database update --project src/Firmeza.Infrastructure --startup-project
 Para administrar visualmente la base de datos desde pgAdmin 4:
 
 1. Abre **pgAdmin 4**.
-2. Clic derecho en **Servers** -> **Register** -> **Server...**.
-3. En la pestaña **General**:
-   * **Name:** `Firmeza PostgreSQL`
-4. En la pestaña **Connection**:
-   * **Host name/address:** `localhost` (o `127.0.0.1`)
-   * **Port:** `5433` *(Importante: no usar 5432)*
-   * **Maintenance database:** `firmeza_db`
-   * **Username:** `postgres`
-   * **Password:** `postgres`
-   * *(Opcional)* Marca la casilla **Save password**.
-5. Clic en **Save**.
+   2. Clic derecho en **Servers** -> **Register** -> **Server...**.
+   3. En la pestaña **General**:
+      * **Name:** `Firmeza PostgreSQL`
+   4. En la pestaña **Connection**:
+      * **Host name/address:** `localhost` (o `127.0.0.1`)
+      * **Port:** `5433` *(Importante: no usar 5432)*
+      * **Maintenance database:** `firmeza_db`
+      * **Username:** `postgres`
+      * **Password:** `postgres`
+      * *(Opcional)* Marca la casilla **Save password**.
+   5. Clic en **Save**.
 
 En el árbol lateral podrás explorar las tablas en:
 `Servers` > `Firmeza PostgreSQL` > `Databases` > `firmeza_db` > `Schemas` > `public` > `Tables`.
@@ -145,16 +145,16 @@ dotnet run --project src/Firmeza.API/Firmeza.API.csproj
 
 Una vez en ejecución:
 * **Swagger UI:** Accede a [http://localhost:5117/swagger](http://localhost:5117/swagger) (o directamente en la raíz [http://localhost:5117/](http://localhost:5117/), que redirecciona a Swagger).
-* **Scalar API Reference:** Accede a [http://localhost:5117/scalar/v1](http://localhost:5117/scalar/v1).
+  * **Scalar API Reference:** Accede a [http://localhost:5117/scalar/v1](http://localhost:5117/scalar/v1).
 
 ### 🔐 Autenticación y Autorización (Identity + JWT Bearer)
 1. **Registro:** `POST /api/Auth/register` enviando `{ "email": "admin@firmeza.com", "password": "TuPassword123", "rol": "Admin" }`.
-2. **Login:** `POST /api/Auth/login` para recibir tu token JWT con su respectivo rol (`Admin` o `Cliente`).
-3. **Autorizar en Swagger:**
-   * Clic en el botón verde **Authorize** (candado) en Swagger.
-   * Ingresa:
-     ```text
-     Bearer <tu_token_jwt>
-     ```
-   * Clic en **Authorize** y luego **Close**.
-4. **Operaciones CRUD:** Ejecuta las operaciones sobre `/api/Productos` y `/api/Clientes` con la autenticación activa.
+   2. **Login:** `POST /api/Auth/login` para recibir tu token JWT con su respectivo rol (`Admin` o `Cliente`).
+   3. **Autorizar en Swagger:**
+      * Clic en el botón verde **Authorize** (candado) en Swagger.
+      * Ingresa:
+        ```text
+        Bearer <tu_token_jwt>
+        ```
+      * Clic en **Authorize** y luego **Close**.
+   4. **Operaciones CRUD:** Ejecuta las operaciones sobre `/api/Productos` y `/api/Clientes` con la autenticación activa.
